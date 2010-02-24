@@ -27,7 +27,7 @@ namespace :translate do
       locale_hash = locale_hash.deep_merge(YAML::load(File.open(locale_file_name))[LOCALE])
     end
     lookup_pattern = Translate::Keys.new.send(:i18n_lookup_pattern)
-    Dir.glob(File.join("app", "**","*.{rb,rhtml}")).each do |file_name|
+    Dir.glob(File.join("app", "**","*.{rb,rhtml,erb}")).each do |file_name|
       File.open(file_name, "r+").each do |line|
         line.scan(lookup_pattern) do |key_string|
           result << "#{key_string} in \t  #{file_name} is not in any locale file" unless key_exist?(key_string.first.split("."), locale_hash)
@@ -57,7 +57,7 @@ namespace :translate do
     Translate::Keys.new.send(:extract_i18n_keys, new_translations[locale]).each do |key|
       new_text = key.split(".").inject(new_translations[locale]) { |hash, sub_key| hash[sub_key] }
       existing_text = I18n.backend.send(:lookup, locale.to_sym, key)
-      if existing_text && new_text != existing_text        
+      if existing_text && new_text != existing_text
         puts "ERROR: key #{key} already exists with text '#{existing_text.inspect}' and would be overwritten by new text '#{new_text}'. " +
           "Set environment variable OVERWRITE=1 if you really want to do this."
         overwrites = true
